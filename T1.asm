@@ -802,6 +802,9 @@ exit_rootLoop:
         addi $sp, $sp, 28		# $sp = $sp + 28
         jr $ra				# jump to $ra
 
+
+#Procedimento tabuada recebe como argumento o $a0.
+#a0 é o número que se deseja mostrar a tabuada. 
 tabuada:
         #a0 como numero base para a tabuada
         addi $sp, $sp, -16		# $sp = $sp - 20
@@ -825,7 +828,7 @@ tabuadaLoop:
 	la $a0, str_barra_n
 	syscall
         addi $t0, $t0, 1		# $t0 = $zero + 1
-        j tabuadaLoop		#jump to tabuadaLoop
+        j tabuadaLoop			#jump to tabuadaLoop
 tabuada_exitLoop:
         lw $ra, 0($sp)		                
         lw $t0, 4($sp)		                 
@@ -833,7 +836,7 @@ tabuada_exitLoop:
         lw $t2, 12($sp)		        
         lw $a0, 16($sp)		                
         addi $sp, $sp, 16		# $sp = $sp + 20
-        jr $ra		# jump to $ra
+        jr $ra				# jump to $ra
 	
 
 
