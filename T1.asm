@@ -26,12 +26,12 @@ str_op7: .asciiz "Opção 7 -> Cálculo de IMC;\n"
 str_op8: .asciiz "Opção 8 -> Fatorial;\n"
 str_op9: .asciiz "Opção 9 -> Sequência de Fibonacci;\n"
 str_op10: .asciiz "Opção 10 -> Sair do programa;\n"
-str_dig1_32b: .asciiz "Digite um número(32 bits):"
-str_dig2_32b: .asciiz "Digite outro número(32 bits):"
-str_dig1_16b: .asciiz "Digite um número(16 bits):"
-str_dig2_16b: .asciiz "Digite outro número(16 bits):"
-str_peso: .asciiz "Digite o peso(em kg)(16 bits):"
-str_altura: .asciiz "Digite a altura:(em m)(16 bits):"
+str_dig1_32b: .asciiz "Digite um número(até 32 bits):"
+str_dig2_32b: .asciiz "Digite outro número(até 32 bits):"
+str_dig1_16b: .asciiz "Digite um número(até 16 bits):"
+str_dig2_16b: .asciiz "Digite outro número(até 16 bits):"
+str_peso: .asciiz "Digite o peso(em kg)(até 16 bits):"
+str_altura: .asciiz "Digite a altura:(em m)(até 16 bits):"
 str_res: .asciiz "O resultado é: "
 str_fim: .asciiz "Fim de execução.\n"
 str_erro: .asciiz "Erro -> Opção Inválida!\n"
@@ -424,12 +424,12 @@ op5:
 	move $a0, $a1
 	li $v0, 1
 	syscall
-	j switch
 	
 	#imprime str_barra_n
 	li $v0, 4
 	la $a0, str_barra_n
 	syscall
+	j switch
 	
 erro_raiz_neg:
 	li $v0, 4
@@ -451,10 +451,7 @@ op6:
 	#argumento do procedimento tabuada
 	move $a0, $v0
 	
-	#jal ?????
-	
-	...
-	
+	jal tabuada
 	j switch	
 	
 	
@@ -765,49 +762,78 @@ exit_powLoop:
 #Procedimento raiz_quadrada recebe como argumento o $a0 e retorna sua raiz em $v0.
 #a0 base da raiz
 raiz_quadrada:
-
-	#EMPILHANDO $t0, $ra, $a0
-	addi $sp, $sp, -28	
-	sw $t0, 0($sp) 
-	sw $t1, 4($sp) 
-    	sw $t2, 8($sp)		    
-    	sw $t3, 12($sp)	    
-    	sw $t4, 16($sp)
-    	sw $a0, 20($sp)	     
-	sw $ra, 24($sp)
-		     
-    	
-    	addi $t0, $zero, 2	# $t0 = zero + 2
-    	addi $t1, $a0, 0	# $t1 = $a0 + 0
-   	div $t1, $t0		# $t1 / $t0
-    	mflo $t1		# manda para o $t1 o quociente da divisão
-    	addi $t0, $zero, 0	# $t0 = $zero + 0
-    	addi $t2, $a0, 0	# $t2 = $a0 + 0
-    	addi $t4, $zero, 2	# $t4 = $zero + 2
-    	
+        #a0 base da raiz
+        #EMPILHANDO $t0, $ra, $a0
+        addi $sp, $sp, -28	# $sp = $sp - 28
+        sw $t0, 0($sp) 
+        sw $t1, 4($sp)		
+        sw $t2, 8($sp)		  
+        sw $t3, 12($sp)	        
+        sw $t4, 16($sp)	         
+        sw $ra, 20($sp)	        
+        sw $a0, 24($sp)
+        		 
+        #COPIANDO O VALOR 2 PARA $t0
+        addi $t0, $zero, 2		# $t0 = zero + 2
+        addi $t1, $a0, 0		# $t1 = $a0 + 0
+        div $t1, $t0			# $t1 / $t0
+        mflo $t1			# send to $t1 quocient of div
+        addi $t0, $zero, 0		# $t0 = $zero + 0
+        addi $t2, $a0, 0		# $t2 = $a0 + 0
+        addi $t4, $zero, 2		# $t4 = $zero + 2
 rootLoop:
-	bge $t0, $t1, exit_rootLoop	# se $t0 >= $t1 vai para exit_rootLoop
-	div $a0, $t2		# $a0 / $t2
-	mflo $t3 		# manda para o $t3  o quociento da div
-	add $t2, $t3, $t2	# $t0 = $t3 + $t2
-    	div $t2, $t4		# $t2 / $t4(2)
-    	mflo $t2		# send to $ quocient of div
-    	addi $t0, $t0, 1	# $t0 = $t0 + 1
-    	j rootLoop		# jump to rootLoop
+        bge $t0, $t1, exit_rootLoop	# if $t0 >= $t1 then exit_rootLoop
+        div $a0, $t2			# $a0 / $t2
+        mflo $t3 			# send to $t3 quocient of div
+        add $t2, $t3, $t2		# $t0 = $t3 + $t2
+        div $t2, $t4			# $t2 / $t4(2)
+        mflo $t2			# send to $ quocient of div
+        addi $t0, $t0, 1		# $t0 = $t0 + 1
+        j rootLoop	# jump to rootLoop
+exit_rootLoop:
+        add $v0, $t2, $zero		# $v0 = $t2 + $zero
+        lw $t0, 0($sp)		         
+        lw $t1, 4($sp)		        
+        lw $t2, 8($sp)		        
+        lw $t3, 12($sp)	        
+        lw $t4, 16($sp)	         
+        lw $ra, 20($sp)	         
+        lw $a0, 24($sp)		 
+        addi $sp, $sp, 28		# $sp = $sp + 28
+        jr $ra				# jump to $ra
 
-exit_rootLoop:    
-    	#addi $a0, $v0, 0 # $a0 = $v0 + 0
-    	
-    	lw $t0, 0($sp)		
-    	lw $t1, 4($sp)		   
-    	lw $t2, 8($sp)		    
-    	lw $t3, 12($sp)	    
-    	lw $t4, 16($sp)	     
-    	lw $a0, 20($sp)
-    	lw $ra, 24($sp)	     
-    	addi $sp, $sp, 28 
-    	jr $ra			
-	
+tabuada:
+        #a0 como numero base para a tabuada
+        addi $sp, $sp, -16		# $sp = $sp - 20
+        sw $ra, 0($sp)		                
+        sw $t0, 4($sp)		               
+        sw $t1, 8($sp)		               
+        sw $t2, 12($sp)		        
+        sw $a0, 16($sp)	        	 
+        addi $t0, $zero, 1		# $t0 = $zero + 1
+        addi $t1, $zero, 10		# $t1 = $zero + 10
+        add $t2, $zero, $a0		# $t2 = $zero + $a0
+tabuadaLoop:
+        bgt $t0, $t1, tabuada_exitLoop	# if $t0 > $t1 then tabuada_exitLoop
+        add $a0, $zero, $t2		# $a0 = $zero + $t2
+        mult $a0, $t0			# $a0 * $t0 = Hi and Lo registers
+        mflo $a0			# copy Lo to $a0
+        li $v0, 1	                # $v0 = 1
+        syscall                         #printing integer
+        #imprime str_barra_n
+	li $v0, 4
+	la $a0, str_barra_n
+	syscall
+        addi $t0, $t0, 1		# $t0 = $zero + 1
+        j tabuadaLoop		#jump to tabuadaLoop
+tabuada_exitLoop:
+        lw $ra, 0($sp)		                
+        lw $t0, 4($sp)		                 
+        lw $t1, 8($sp)		               
+        lw $t2, 12($sp)		        
+        lw $a0, 16($sp)		                
+        addi $sp, $sp, 16		# $sp = $sp + 20
+        jr $ra		# jump to $ra
 	
 
 
